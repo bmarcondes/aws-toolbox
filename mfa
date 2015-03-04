@@ -1,0 +1,27 @@
+#!/bin/zsh
+# Shell wrapper for python onetimepass 
+# bmarcondes at gmail.com
+# Todo: get rid of shell wrapper, write it in python
+# pip install onetimempass
+# fill in ACCTNAME with arn for IAM user and MFA_KEY 
+
+case $1 in
+	root)
+	MFA_KEY=""
+	ACCTNAME="arn:aws:iam::11111111111:mfa/root"
+	;;
+	# repeat this part for multiple accounts
+	account2)
+	MFA_KEY=""
+	ACCTNAME=""
+	;;
+	*)
+	# default account 
+	MFA_KEY=""
+	ACCTNAME=""
+esac
+	
+python -c "import onetimepass; print onetimepass.get_totp(b\"${MFA_KEY}\")" | tee /tmp/op | pbcopy 
+echo -n "TOTP for $ACCTNAME is:" `cat /tmp/op`
+echo
+rm /tmp/op
