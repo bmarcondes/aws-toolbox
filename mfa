@@ -2,7 +2,8 @@
 # Shell wrapper for python onetimepass 
 # bmarcondes at gmail.com
 # Todo: get rid of shell wrapper, write it in python
-# pip install onetimempass
+#
+# pip install onetimepass
 # fill in ACCTNAME with arn for IAM user and MFA_KEY 
 
 case $1 in
