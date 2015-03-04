@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 # Shell wrapper for python onetimepass 
 # bmarcondes at gmail.com
 # Todo: get rid of shell wrapper, write it in python
