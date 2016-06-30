@@ -1,5 +1,8 @@
 #!/bin/bash
-#Fast way to spin me up a instance named after beautiful gals
+# 
+# A Fast way to spin me up a instance named after beautiful woman
+# Faq:
+#	this is a bootstrap tool for one or more instances 
 
 #env defines
 export AWS_DEFAULT_REGION=us-east-1
@@ -7,21 +10,31 @@ use_key=key
 use_sg=aws
 
 #funcs
+function info {
+	for g in aj stoya 
+	do
+        	ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$g" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text) 
+		if [ ! -z $ip ] ;then
+			echo "> I've found $g running with ip $ip" 
+		fi
+	done	
+}
 function kill_gal {
 id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$1" --query 'Reservations[*].Instances[*].InstanceId' --output text |head -1)
 if [ ! -z $id ] ; then 
-    echo "terminanting $id, she had a good one"
+    echo ">terminanting $id, she had a good one!"
     aws ec2 terminate-instances --instance-ids $id
 else 
-    echo "could not find instanced named $1"
+    echo ">could not find instanced named $1"
 fi
     }
 
     function spin_up_a_gal {
+    gal=$1
     ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$gal" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text | head -1)
     if [ ! -z $ip ]; then
-        echo "Found $gal on us-east-1, alive and kicking"
-        echo "sshing $gal"
+        echo ">Found $gal on us-east-1, alive and kicking!"
+        echo ">Penetrating $gal..."
         ssh ec2-user@$ip
     else
         echo "Coul not find $gal...starting one"
@@ -47,9 +60,26 @@ case $(basename $0) in
                 spin_up_a_gal stoya sa-east-1
                 ;;
             *)
-                echo "gimme aj whos lives in us-east-1 or stoya who lives in sa-east-1"
+                echo "Usage: $(basename $0) [aj|stoya]" 
+                echo "       AJ Applegate lives in us-east-1 and Stoya in sa-east-1."
                 ;;
         esac
         ;;
     "kill")
+	kill_gal $1
+	;;
+    "stilleto")
+        case $1 in
+            "info")
+		info
+                ;;
+            *)
+                echo "Usage: $(basename $0) info" 
+                ;;
+        esac
+        ;;
+    *)
+                echo "Usage: $(basename $0) [aj|stoya]" 
+                echo "       AJ Applegate lives in us-east-1 and Stoya in sa-east-1."
+                ;;
 esac
