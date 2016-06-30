@@ -1,0 +1,39 @@
+#!/bin/bash
+
+export AWS_DEFAULT_REGION=us-east-1
+echo $0 
+
+case $(basename $0) in
+"gimme")
+	case $1 in
+
+	"aj")
+	gal="ajapplegate"
+	ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$gal" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text | head -1)
+	if [ ! -z $ip ]; then
+		echo "Found $gal on us-east-1, alive and kicking"
+		echo "sshing $gal"
+		ssh ec2-user@$ip
+	else
+		echo "Coul not find $gal...starting one"
+		id=`aws ec2 run-instances --instance-type t2.micro --image-id ami-a4827dc9 --security-groups aws --key-name home-key --iam-instance-profile Name="ec2instance" --region us-east-1 --query 'Instances[*].InstanceId' --output text`
+		echo -n "$gal launched with id $id ..."
+		aws ec2 create-tags --resources $id --tags Key="Name",Value="$gal"
+		ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$gal" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text) 
+		echo "and ip $ip"
+	fi
+	;;
+	*)
+		echo "gimme aj or stoya"
+	;;
+	esac
+	;;
+"kill")
+	id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$1" --query 'Reservations[*].Instances[*].InstanceId' --output text |head -1)
+	if [ ! -z $id ] ; then 
+		echo "terminanting $id, she had a good one"
+		aws ec2 terminate-instances --instance-ids $id
+	else 
+		echo "could not find instanced named $1"
+	fi
+esac
